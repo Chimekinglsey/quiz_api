@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Quiz, Question, Answer, QuizUser
+from .models import Quiz, Question, Answer, QuizUser, UserQuizAttempt
 
 class QuizAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'difficulty', 'author',)
@@ -22,7 +22,14 @@ class QuizUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'is_superuser', 'total_score', 'highest_score')
     search_fields = ('username', 'total_score', 'highest_score')
 
+class UserQuizAttemptAdmin(admin.ModelAdmin):
+    """ Define the display options for UserQuizAttempt model"""
+    list_display = ('user', 'quiz', 'score', 'completed')
+    list_filter = ('user', 'quiz', 'completed')
+    search_fields = ('user', 'quiz', 'score')
+
 admin.site.register(QuizUser, QuizUserAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Quiz, QuizAdmin)
+admin.site.register(UserQuizAttempt, UserQuizAttemptAdmin)

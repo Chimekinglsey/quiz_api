@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     # Custom Apps
     'quiz_app',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
 ]
@@ -132,6 +133,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+#############################################################
+# Custom Settings
+#############################################################
+
+APPEND_SLASH=False
 
 # NOTE: More custom settings for jwt and corsheaders
 AUTH_USER_MODEL = 'quiz_app.QuizUser'

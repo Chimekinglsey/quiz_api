@@ -2,13 +2,28 @@ from rest_framework import serializers
 from .models import Quiz, Question, Answer, QuizUser
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for user model data."""
+# Serializer for user registration and login
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    """Serializer for user registration data."""
+
     class Meta:
         model = QuizUser  # Use QuizUser instead of User (custom user model)
-        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'total_score', 'highest_score',
-                  'total_quizzes_taken', 'average_score')
-        read_only_fields = ('total_score', 'highest_score', 'total_quizzes_taken', 'average_score')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'password')
+        extra_kwargs = {'password': {'write_only': True}}  # Hide password in response
+
+    def create(self, validated_data):
+        user = QuizUser.objects.create_user(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+# class UserSerializer(serializers.ModelSerializer):
+#     """Serializer for user model data."""
+#     class Meta:
+#         model = QuizUser  # Use QuizUser instead of User (custom user model)
+#         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'total_score', 'highest_score',
+#                   'total_quizzes_taken', 'average_score')
+#         read_only_fields = ('total_score', 'highest_score', 'total_quizzes_taken', 'average_score')
 
 
 class QuizSerializer(serializers.ModelSerializer):
