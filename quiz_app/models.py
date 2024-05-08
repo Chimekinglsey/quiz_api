@@ -22,7 +22,7 @@ class Quiz(models.Model):
     title = models.CharField(max_length=255, unique=True, help_text="Title of the quiz.")
     description = models.TextField(help_text="Description of the quiz.")
     total_questions = models.PositiveIntegerField(default=0, help_text="Total number of questions in the quiz.")
-    total_score = models.PositiveIntegerField(default=100, help_text="Total score for the quiz. 100%\\ by default.")
+    total_score = models.PositiveIntegerField(default=100, help_text="Total score for the quiz. 100% by default.")
     difficulty = models.CharField(max_length=20, help_text="Difficulty level of the quiz.")
     time_limit = models.PositiveIntegerField(default=0, help_text="Time limit for completing the quiz (in minutes).")
     max_attempts = models.PositiveIntegerField(default=1, help_text="Maximum number of attempts allowed for the quiz.")
@@ -57,6 +57,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     """Model to store answer details."""
+    # quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, help_text="Quiz to which the answer belongs.", related_name='answers')
     question = models.ForeignKey(Question, on_delete=models.CASCADE, help_text="Question to which the answer belongs.", related_name='answers')
     text = models.TextField(help_text="Text of the answer.")
     is_correct = models.BooleanField(default=False, help_text="Indicates if the answer is correct.")
@@ -71,6 +72,7 @@ class UserQuizAttempt(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, help_text="Quiz attempted by the user.", related_name='user_attempts')
     score = models.PositiveIntegerField(default=0, help_text="Score obtained by the user in the quiz.")
     total_questions = models.PositiveIntegerField(default=0, help_text="Total number of questions in the quiz.")
+    attempt_count = models.PositiveIntegerField(default=0, help_text="Number of attempts made by the user on a quiz.")
     completed = models.BooleanField(default=False, help_text="Indicates if the user has completed the quiz.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
