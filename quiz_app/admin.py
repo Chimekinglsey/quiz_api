@@ -7,13 +7,13 @@ class QuizAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('quiz', 'text', 'question_type', 'created_at')
+    list_display = ('id', 'quiz', 'text', 'question_type', 'created_at')
     list_filter = ('quiz', 'question_type')
     search_fields = ('text',)
 
 class AnswerAdmin(admin.ModelAdmin):
     """ Define the display options for Answer model"""
-    list_display = ('question', 'text', 'is_correct')
+    list_display = ('id', 'question', 'text', 'is_correct')
     list_filter = ('question', 'is_correct')
     search_fields = ('text',)
 
@@ -24,8 +24,8 @@ class QuizUserAdmin(admin.ModelAdmin):
 
 class UserQuizAttemptAdmin(admin.ModelAdmin):
     """ Define the display options for UserQuizAttempt model"""
-    list_display = ('user', 'quiz', 'score', 'completed')
-    list_filter = ('user', 'quiz', 'completed')
+    list_display = ('user', 'quiz', 'score', 'completed', 'attempt_count')
+    list_filter = ('user', 'quiz', 'completed', 'attempt_count')
     search_fields = ('user', 'quiz', 'score')
 
 admin.site.register(QuizUser, QuizUserAdmin)

@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
@@ -12,6 +12,8 @@ from .serializers import QuizSerializer, QuestionSerializer, UserRegistrationSer
 from random import sample
 from django.db import models
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 
@@ -28,11 +30,14 @@ class UserRegistrationViewSet(viewsets.ModelViewSet):
 
 
 
-
-
 class LoginView(APIView):
     """API endpoint for user login."""
     permission_classes = []  # Allow unauthenticated users to login
+
+    # Define a simple get that allows login 
+    def get(self, request): # Added lately so that logout could redirect
+        """Allow logout to redirect to get"""
+        return Response(status=status.HTTP_200_OK)
 
     def post(self, request):
         username = request.data.get('username')
@@ -54,14 +59,8 @@ class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
 
     def get_queryset(self):
-        """Filter quizzes based on user permissions."""
-        user = self.request.user
-        if user.is_superuser:
-            # Admins can see all quizzes
-            return self.queryset
-        else:
-            # Non-admins can only see quizzes they authored
-            return self.queryset.filter(author=user)
+        """Filter quizzes all quizzes for non-admin users."""
+        return self.queryset
 
     def perform_create(self, serializer):
         """Set the current user as the author of the quiz during creation."""
@@ -83,7 +82,8 @@ class TakeQuizView(APIView):
 
         # Check attempt limit and remaining attempts
         attempted_quiz, _ = UserQuizAttempt.objects.get_or_create(user=user, quiz=quiz)
-        remaining_attempts = max(0, quiz.max_attempts - attempted_quiz.count())
+        print(attempted_quiz)
+        remaining_attempts = max(0, quiz.max_attempts - attempted_quiz.attempt_count) # avoiding use of filter on the UserQuizAttempt for efficiency
         if remaining_attempts <= 0:
             return Response({'error': f'You have already taken this quiz {quiz.max_attempts} time(s). Maximum attempts reached.'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -112,10 +112,11 @@ class TakeQuizView(APIView):
     def post(self, request, quiz_pk=None):
         quiz = get_object_or_404(Quiz, pk=quiz_pk)
         user = request.user
+        print(user.is_authenticated)
 
         # Check attempt limit and remaining attempts
         attempted_quiz, _ = UserQuizAttempt.objects.get_or_create(user=user, quiz=quiz)
-        remaining_attempts = max(0, quiz.max_attempts - attempted_quiz.count())
+        remaining_attempts = max(0, quiz.max_attempts - attempted_quiz.attempt_count)
         if remaining_attempts <= 0:
             return Response({'error': f'You have already taken this quiz {quiz.max_attempts} time(s). Maximum attempts reached.'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -125,6 +126,7 @@ class TakeQuizView(APIView):
         attempted_quiz.score = score
         attempted_quiz.total_questions = questions.count()
         attempted_quiz.completed = True
+        attempted_quiz.attempt_count += 1
 
         # Update user quiz progress
         user.total_quizzes_taken += 1
@@ -148,7 +150,7 @@ class TakeQuizView(APIView):
             'score': score,
             'total_questions': questions.count(),
             'remaining_attempts': remaining_attempts,
-            'quiz_data': QuestionSerializer(questions, many=True).data
+            # 'quiz_data': QuestionSerializer(questions, many=True).data # Uncomment to return all questions in response, it was used for testing
         }, status=status.HTTP_200_OK)
 
     def calculate_score(self, submitted_answers, quiz):

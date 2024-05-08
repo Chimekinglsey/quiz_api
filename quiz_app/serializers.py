@@ -17,14 +17,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-# class UserSerializer(serializers.ModelSerializer):
-#     """Serializer for user model data."""
-#     class Meta:
-#         model = QuizUser  # Use QuizUser instead of User (custom user model)
-#         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'total_score', 'highest_score',
-#                   'total_quizzes_taken', 'average_score')
-#         read_only_fields = ('total_score', 'highest_score', 'total_quizzes_taken', 'average_score')
-
 
 class QuizSerializer(serializers.ModelSerializer):
     """Serializer for quiz model data."""
@@ -40,8 +32,8 @@ class QuestionSerializer(serializers.ModelSerializer):
     """Serializer for question model data."""
     class Meta:
         model = Question
-        fields = ('id', 'quiz', 'text', 'question_type', 'points', 'last_displayed', 'created_at', 'updated_at')
-        read_only_fields = ('quiz', 'last_displayed', 'created_at', 'updated_at')
+        fields = ('id', 'quiz', 'text', 'question_type', 'points')
+        read_only_fields = ('quiz',)
 
 
 class AnswerSerializer(serializers.ModelSerializer):

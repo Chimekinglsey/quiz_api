@@ -13,10 +13,10 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
 
     # User Registration
-    path('users/', UserRegistrationViewSet.as_view({'post': 'create'}), name='register'),  # Only the 'post' method for registration
+    path('register/', UserRegistrationViewSet.as_view({'post': 'create'}), name='register'),  # Only the 'post' method for registration
 
     # Quiz Endpoints
     path('', include(router.urls)),
-    path('quizzes/<int:pk>/take/', TakeQuizView.as_view(), name='take-quiz'),
-    path('quizzes/<int:pk>/submit/', TakeQuizView.as_view(), name='submit-quiz'),  # Use POST for submitting quiz
+    path('quizzes/<int:quiz_pk>/take/', TakeQuizView.as_view(), name='take-quiz'),
+    path('quizzes/<int:quiz_pk>/submit/', TakeQuizView.as_view(), name='submit-quiz'),  # Use POST for submitting quiz
 ]
