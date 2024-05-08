@@ -19,8 +19,8 @@ class QuizUser(AbstractUser):
 
 class Quiz(models.Model):
     """Model to store quiz details."""
-    title = models.CharField(max_length=255)
-    description = models.TextField()
+    title = models.CharField(max_length=255, unique=True, help_text="Title of the quiz.")
+    description = models.TextField(help_text="Description of the quiz.")
     total_questions = models.PositiveIntegerField(default=0, help_text="Total number of questions in the quiz.")
     total_score = models.PositiveIntegerField(default=100, help_text="Total score for the quiz. 100%\\ by default.")
     difficulty = models.CharField(max_length=20, help_text="Difficulty level of the quiz.")
