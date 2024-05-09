@@ -23,9 +23,9 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ('id', 'title', 'description', 'total_questions', 'total_score',
-                  'difficulty', 'time_limit', 'author', 'created_at', 'updated_at')
+                  'difficulty', 'time_limit')
         #  same as '__all__' but listed them for readability
-        read_only_fields = ('total_score', 'author', 'created_at', 'updated_at')
+        read_only_fields = ('total_score', 'total_questions')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
