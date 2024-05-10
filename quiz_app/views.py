@@ -111,7 +111,6 @@ class TakeQuizView(APIView):
     def post(self, request, quiz_pk=None):
         quiz = get_object_or_404(Quiz, pk=quiz_pk)
         user = request.user
-        print(user.is_authenticated)
 
         # Check attempt limit and remaining attempts
         attempted_quiz, _ = UserQuizAttempt.objects.get_or_create(user=user, quiz=quiz)
@@ -120,6 +119,7 @@ class TakeQuizView(APIView):
             return Response({'error': f'You have already taken this quiz {quiz.max_attempts} time(s). Maximum attempts reached.'}, status=status.HTTP_403_FORBIDDEN)
 
         score, questions = self.calculate_score(request.data.get('answers', {}), quiz)
+        print(request.data)
 
         # Update user quiz attempt data
         attempted_quiz.score = score
@@ -157,8 +157,7 @@ class TakeQuizView(APIView):
         questions = quiz.questions.prefetch_related('answers')
 
         for question in questions:
-            answer_id_str = str(question.id)
-            answer_id = submitted_answers.get(answer_id_str)
+            answer_id = submitted_answers.get(str(question.id) ) # retrive answer for each submitted answer
             if answer_id:
                 correct_answer = question.answers.filter(pk=answer_id, is_correct=True).first()
                 if correct_answer:

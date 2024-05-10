@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, ListGroup, ListGroupItem, Button, Form, Col } from 'react-bootstrap';
 import api from '../api';
+import ResultModal from './ResultModal';
 
-const Quiz = () => {
-  const { quizId } = useParams();
+const Quiz = ({quizId}) => {
   const navigate = useNavigate();
-
   const [quizData, setQuizData] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [score, setScore] = useState(0);
+  const [nextButtonClicked, setNextButtonClicked] = useState(false); // State to track if next button has been clicked
+  const [showResultModal, setShowResultModal] = useState(false);
 
   useEffect(() => {
     const fetchQuiz = async () => {
-      const response = await api.get(`/api/quizzes/${quizId}/`);
-      console.log(response.data)
+      if (!quizId) { // Check if quizId is undefined
+        console.error("Missing quizId parameter");
+        return; // Exit the function early
+      }
+      const response = await api.get(`/quizzes/${quizId}/take/`);
       setQuizData(response.data);
     };
     fetchQuiz();
@@ -23,27 +27,56 @@ const Quiz = () => {
 
   const handleNextQuestion = () => {
     setCurrentQuestion(currentQuestion + 1);
+    setNextButtonClicked(true); // Update state to indicate next button has been clicked
   };
 
+  const handlePreviousQuestion = () => {
+    setCurrentQuestion(currentQuestion - 1);
+    // No need to update nextButtonClicked here, as previous button should only be enabled after next button is clicked
+  };
+
+  
   const handleAnswerChange = (event) => {
-    setUserAnswers({ ...userAnswers, [event.target.name]: event.target.value });
+    console.log('Answer changed');
+    console.log('Event target:', event.target);
+    console.log('User answers after update:', userAnswers);
+    const { name, value } = event.target;
+    setUserAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [name]: value
+    }));
+    console.log('User answers before update:', userAnswers);
   };
 
   const handleSubmitQuiz = async () => {
-    const answers = Object.values(userAnswers);
-    const response = await api.post(`/quizzes/${quizId}/submit/`, { answers });
+    const response = await api.post(`/quizzes/${quizId}/submit/`, {'answers': userAnswers}); // Our backend expects a key `answers` with answers as k.v pairs
     const { score, message } = response.data;
     setScore(score);
-    alert(message); // TODO: replace with a proper result display component
-    navigate('/'); // Redirect to home page after submission
+    const title = score > 50 ? 'Congratulations!' : 'Quiz Results';
+    setShowResultModal(true);
+
+  return (
+    <ResultModal
+      title={title} // Pass the title based on score
+      message={message}
+      score={score}
+      showModal={showResultModal}
+      onClose={() => {
+        setShowResultModal(false),
+        navigate('/') // Redirect to home page
+      }}
+    />
+  );
   };
+  
 
   const renderQuestion = () => {
     if (!quizData) return <p>Loading quiz...</p>;
 
-    const currentQuestionData = quizData.questions[currentQuestion];
+    const currentQuestionData = quizData.quiz_data[currentQuestion];
 
     if (!currentQuestionData) return <p>Quiz completed!</p>;
+    console.log(quizData.quiz_data);
 
     return (
       <>
@@ -56,19 +89,22 @@ const Quiz = () => {
                   inline
                   type="radio"
                   label={answer.text}
-                  name={currentQuestionData.id} // Use question ID as name for answer group
+                  name={currentQuestionData.id}
                   value={answer.id}
-                  checked={userAnswers[currentQuestionData.id] === answer.id}
+                  checked={userAnswers[`question${currentQuestion}`] === answer.id}
                   onChange={handleAnswerChange}
                 />
               </ListGroupItem>
             ))}
           </ListGroup>
         </Card>
-        <Button variant="primary" disabled={currentQuestion === quizData.questions.length - 1} onClick={handleNextQuestion}>
-          Next Question
+        <Button variant="primary" disabled={currentQuestion === quizData.quiz_data.length - 1} onClick={handleNextQuestion}>
+          Next
         </Button>
-        {currentQuestion === quizData.questions.length - 1 && (
+        <Button variant="secondary" disabled={!nextButtonClicked || currentQuestion === 0} onClick={handlePreviousQuestion}>
+          Prev
+        </Button>
+        {currentQuestion === quizData.quiz_data.length - 1 && (
           <Button variant="success" onClick={handleSubmitQuiz}>
             Submit Quiz
           </Button>

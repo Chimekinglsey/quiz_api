@@ -28,20 +28,23 @@ class QuizSerializer(serializers.ModelSerializer):
         read_only_fields = ('total_score', 'total_questions')
 
 
-class QuestionSerializer(serializers.ModelSerializer):
-    """Serializer for question model data."""
-    class Meta:
-        model = Question
-        fields = ('id', 'quiz', 'text', 'question_type', 'points')
-        read_only_fields = ('quiz',)
-
 
 class AnswerSerializer(serializers.ModelSerializer):
     """Serializer for answer model data."""
-    is_correct = serializers.BooleanField(read_only=True)  # Don't expose correct answer in API response
 
     class Meta:
         model = Answer
-        fields = ('id', 'question', 'text', 'is_correct')
+        fields = ('id', 'question', 'text')
+        read_only_fields = ('question',)
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    """Serializer for question model data."""
+    answers = AnswerSerializer(many=True, read_only=True)  # Include answers to each question as response with read_only
+
+    class Meta:
+        model = Question
+        fields = ('id', 'quiz', 'text', 'question_type', 'points', 'answers')
+        read_only_fields = ('quiz',)
 
 # Path: quiz_api/quiz_app/serializers.py
