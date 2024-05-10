@@ -143,7 +143,6 @@ The frontend uses the following dependencies:
 
 - **axios**: HTTP client for making API requests.
 - **bootstrap**: Frontend framework for styling and layout.
-- **jwt-decode**: Library for decoding JWT tokens.
 - **react**: JavaScript library for building user interfaces.
 - **react-bootstrap**: React components library based on Bootstrap.
 - **react-dom**: React package for DOM rendering.
