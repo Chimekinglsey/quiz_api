@@ -73,6 +73,12 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
+### Testing with custom database.
+To test, you can dump the quiz_api.sql into your database to have created tests and users
+  ```bash
+  mysql -u username -p database_name < quiz_api.sql
+  ```
+  replace username with your db_username and database_name with your database name
 
 7. Access the application in your web browser at `http://localhost:8000/`
 
