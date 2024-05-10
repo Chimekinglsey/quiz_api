@@ -34,7 +34,6 @@ const Quiz = ({ quizId }) => {
           setShowModal(true);
         } else {
           console.error("Error fetching quiz:", error);
-          // Handle other errors as needed
         }
       }
     };
@@ -60,13 +59,24 @@ const Quiz = ({ quizId }) => {
 
 
   const handleSubmitQuiz = async () => {
-    const response = await api.post(`/quizzes/${quizId}/submit/`, { answers: userAnswers });
-    const { score } = response.data;
-    setScore(score);
-    if (score > 50) setTitle('Congratulations!')
-    else setTitle('Nice Try!')
-    setRemainingAttempts(response.data.remaining_attempts)
-    setShowModal(true); // Show modal after submission
+    try {
+      const response = await api.post(`/quizzes/${quizId}/submit/`, { answers: userAnswers });
+      const { score } = response.data;
+      setScore(score);
+      if (score > 50) setTitle('Congratulations!')
+      else setTitle('Nice Try!')
+      setRemainingAttempts(response.data.remaining_attempts)
+      setShowModal(true); // Show modal after submission
+    }
+    catch (error) {
+      if (error.response && error.response.status === 403) {
+        setTitle("Error");
+        setMessage('You can no longer take this quiz again. Maximum quiz attempt reached.')
+        setShowModal(true);
+      } else {
+        console.error("Error fetching quiz:", error);
+      }
+    }
   };
 
   const handleCloseModal = () => {
@@ -94,7 +104,7 @@ const Quiz = ({ quizId }) => {
                   label={answer.text}
                   name={currentQuestionData.id}
                   value={answer.id}
-                  checked={userAnswers[`question${currentQuestion}`] === answer.id}
+                  defaultChecked={userAnswers[`question${currentQuestion}`] === answer.id}
                   onChange={handleAnswerChange}
                 />
               </ListGroupItem>
