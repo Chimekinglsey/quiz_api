@@ -1,21 +1,20 @@
 import React from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 
-const ResultModal = ({ title, message, score, showModal, onClose }) => {
+const ResultModal = ({ title, message, show, onHide }) => {
   return (
-    <Modal show={showModal} onHide={onClose}>
-      <ModalHeader closeButton>
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
-      </ModalHeader>
-      <ModalBody>
-        <p>Your score: {score}</p>
+      </Modal.Header>
+      <Modal.Body>
         <p>{message}</p>
-      </ModalBody>
-      <ModalFooter>
-        <Button variant="primary" onClick={onClose}>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" onClick={onHide}>
           Close
         </Button>
-      </ModalFooter>
+      </Modal.Footer>
     </Modal>
   );
 };

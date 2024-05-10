@@ -41,10 +41,12 @@ class AnswerSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     """Serializer for question model data."""
     answers = AnswerSerializer(many=True, read_only=True)  # Include answers to each question as response with read_only
+    quiz_title = serializers.CharField(source='quiz.title', read_only=True)  # Include quiz title in response
+    difficulty = serializers.CharField(source='quiz.difficulty', read_only=True)
 
     class Meta:
         model = Question
-        fields = ('id', 'quiz', 'text', 'question_type', 'points', 'answers')
+        fields = ('id', 'quiz', 'text', 'question_type', 'points', 'answers', 'quiz_title', 'difficulty')
         read_only_fields = ('quiz',)
 
 # Path: quiz_api/quiz_app/serializers.py

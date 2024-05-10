@@ -6,6 +6,9 @@ import Dashboard from "./pages/Dashboard";
 import TakeQuiz from "./pages/TakeQuiz";
 import Error404 from "./pages/Error404";
 import ProtectedView from "./components/ProtectedView";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { Modal, Button } from "react-bootstrap";
+
 
 function App() {
   return (
