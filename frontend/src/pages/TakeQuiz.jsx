@@ -1,6 +1,11 @@
-import Quiz from "../components/Quiz";
+import React from 'react';
+import Quiz from '../components/Quiz';
+import { useParams } from 'react-router-dom';
 
+const TakeQuiz = () => {
+  const { quizId } = useParams();
 
-const TakeQuiz = () => <Quiz/>;
+  return <Quiz quizId={quizId} />;
+};
 
 export default TakeQuiz;

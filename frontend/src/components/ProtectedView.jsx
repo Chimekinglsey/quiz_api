@@ -13,7 +13,6 @@ export default function ProtectedView({ children }) {
 
     const auth = () =>{
         const token = localStorage.getItem("token");
-        alert(token)
         if (token) {
             try {
             api.defaults.headers.common["Authorization"] = `Token ${token}`; // Backend uses rest_framework_token not jwt
