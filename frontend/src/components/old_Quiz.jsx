@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, ListGroup, ListGroupItem, Button, Form, Modal } from 'react-bootstrap';
+import { Card, ListGroup, ListGroupItem, Button, Form, Col } from 'react-bootstrap';
 import api from '../api';
-
 
 const Quiz = ({ quizId }) => {
   const navigate = useNavigate();
@@ -11,12 +10,10 @@ const Quiz = ({ quizId }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [score, setScore] = useState(0);
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('')
-  const [remainingAttempts, setRemainingAttempts] = useState(null);
   const [nextButtonClicked, setNextButtonClicked] = useState(false);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [quesionData, setQuestionData] = useState() // TODO: set quiz title and difficulty for each quiz
+  let title;
+  let message;
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -24,19 +21,8 @@ const Quiz = ({ quizId }) => {
         console.error("Missing quizId parameter");
         return;
       }
-      try {
-        const response = await api.get(`/quizzes/${quizId}/take/`);
-        setQuizData(response.data);
-      } catch (error) {
-        if (error.response && error.response.status === 403) {
-          setTitle("Error");
-          setMessage('You can no longer take this quiz again. Maximum quiz attempt reached.')
-          setShowModal(true);
-        } else {
-          console.error("Error fetching quiz:", error);
-          // Handle other errors as needed
-        }
-      }
+      const response = await api.get(`/quizzes/${quizId}/take/`);
+      setQuizData(response.data);
     };
     fetchQuiz();
   }, [quizId]);
@@ -58,20 +44,18 @@ const Quiz = ({ quizId }) => {
     }));
   };
 
-
   const handleSubmitQuiz = async () => {
     const response = await api.post(`/quizzes/${quizId}/submit/`, { answers: userAnswers });
     const { score } = response.data;
     setScore(score);
-    if (score > 50) setTitle('Congratulations!')
-    else setTitle('Nice Try!')
-    setRemainingAttempts(response.data.remaining_attempts)
+    title = score > 50 ? 'Congratulations!' : 'Quiz Results';
+    message = response.data.message
     setShowModal(true); // Show modal after submission
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    navigate('/'); // Redirect to home page on close
+    navigate('/'); // Redirect to home page
   };
 
   const renderQuestion = () => {
@@ -117,35 +101,31 @@ const Quiz = ({ quizId }) => {
   };
   return (
     <div>
-      {quizData && ( // Check if quizData is available
-          <span className='spanRow'>
-            <h3>Quiz: {quizData.quiz_title} </h3>
-            <h5>Difficulty: {quizData.difficulty}</h5>
-          </span>
-        )}
+      <h1>Quiz: {quizData?.title}</h1>
       {renderQuestion()}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        {message.length > 0 ? ( // show error only if test attempts is exhausted
-          <p>{message}</p>
-        ) : (
-          <>
-            <p>Your score: {score}</p>
-            <p>Remaining Attempts: {remainingAttempts}</p>
-          </>
-        )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {showModal && (
+        <div className="modal"> {/* Modal container */}
+          <div className="modal-content"> {/* Modal content */}
+            <div className="modal-header">
+              <h5 className="modal-title">{title}</h5>
+              <button type="button" className="close" onClick={handleCloseModal}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Your score: {score}</p>
+              <p>{message}</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
 
-export default Quiz;
+export default Quiz

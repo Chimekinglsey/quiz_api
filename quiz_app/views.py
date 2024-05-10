@@ -114,12 +114,11 @@ class TakeQuizView(APIView):
 
         # Check attempt limit and remaining attempts
         attempted_quiz, _ = UserQuizAttempt.objects.get_or_create(user=user, quiz=quiz)
-        remaining_attempts = max(0, quiz.max_attempts - attempted_quiz.attempt_count)
+        remaining_attempts = max(0, quiz.max_attempts - (attempted_quiz.attempt_count + 1)) # This attempt is 1
         if remaining_attempts <= 0:
             return Response({'error': f'You have already taken this quiz {quiz.max_attempts} time(s). Maximum attempts reached.'}, status=status.HTTP_403_FORBIDDEN)
 
         score, questions = self.calculate_score(request.data.get('answers', {}), quiz)
-        print(request.data)
 
         # Update user quiz attempt data
         attempted_quiz.score = score
